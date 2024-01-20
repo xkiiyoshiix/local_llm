@@ -101,7 +101,6 @@ if prompt := st.chat_input("Chat with me!"):
             if finish_reason != "stop":
                 full_response += response.choices[0].delta.content
                 message_placeholder.markdown(full_response)
-                # time.sleep(0.05)
                 message_placeholder.markdown(full_response + "▌")
         message_placeholder.markdown(full_response)
 
