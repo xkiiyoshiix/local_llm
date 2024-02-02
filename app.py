@@ -6,15 +6,13 @@ import streamlit as st
 import time
 import uuid
 import webbrowser
+import yaml
 
 
-# Variables
-API_BASE = config.OPENAI_API_BASE
-API_KEY = config.OPENAI_API_KEY
-
-
-# Initialize OpenAI
-openai = OpenAI(api_key=API_KEY, base_url=API_BASE)
+def config():
+    with open('config.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    return config
 
 
 # Functions
@@ -28,6 +26,11 @@ def developer_button_onClick():
 
 def github_onClick():
     webbrowser.open("https://github.com/xkiiyoshiix")
+
+
+# Initialize OpenAI
+openai = OpenAI(api_key=config()['openai_api_key'],
+                base_url=config()['openai_api_base'])
 
 
 if "session_id" not in st.session_state:  # Used to identify each session
@@ -48,7 +51,7 @@ if "retry_error" not in st.session_state:  # Used for error handling
 with st.sidebar:
     st.caption = "Sidebar"
     st.set_page_config(page_title="Aprokira")
-    st.title(config.APP_NAME)
+    st.title(config()['app_name'])
     st.divider()
     st.markdown("**Version**  \n0.0.1")
     st.markdown("Using own hosted LLM")
@@ -67,7 +70,7 @@ with st.sidebar:
 
 
 # Set App Title
-st.title(config.APP_TITLE)
+st.title(config()['app_title'])
 
 
 # Display chat messages from history on app rerun
