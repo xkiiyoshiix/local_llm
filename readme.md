@@ -8,7 +8,6 @@ For use with **OpenAI** you need edit the code and add your own OpenAI API key.
 
 If you have questions or optimization-suggestions you can writ it down in **Issues** or **Pull request** section.
 
----
 # Installation
 1. Install "**conda**"
     - Windows: [Download](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe)
