@@ -1,6 +1,5 @@
 from openai import OpenAI
 
-import config
 import os
 import streamlit as st
 import time
@@ -28,11 +27,6 @@ def github_onClick():
     webbrowser.open("https://github.com/xkiiyoshiix")
 
 
-# Initialize OpenAI
-openai = OpenAI(api_key=config()['openai_api_key'],
-                base_url=config()['openai_api_base'])
-
-
 if "session_id" not in st.session_state:  # Used to identify each session
     st.session_state.session_id = str(uuid.uuid4())
 
@@ -53,15 +47,18 @@ with st.sidebar:
     st.set_page_config(page_title="Aprokira")
     st.title(config()['app_name'])
     st.divider()
+    open_ai_base_url = st.text_input(
+        "**OpenAI Base URL**", key="openai_base_url", value="http://127.0.0.1:1234/v1")
+    openai_api_key = st.text_input(
+        "**OpenAI API Key**", key="openai_api_key", type="password", value="1234567890")
+    openai_button = st.button("Get OpenAI Key", on_click=openai_button_onClick)
+    st.divider()
     st.markdown("**Version**  \n0.0.1")
     st.markdown("Using own hosted LLM")
     st.divider()
     st.markdown(f"**Session-ID**  \n{st.session_state.session_id}")
     st.divider()
 
-    # openai_api_key = st.text_input(
-    #    "**OpenAI API Key**", key="chatbot_api_key", type="password", value=API_KEY)
-    # openai_button = st.button("Get OpenAI Key", on_click=openai_button_onClick)
     developer_button = st.button(
         "Developer", on_click=developer_button_onClick)
     github_button = st.button("Github", on_click=github_onClick)
@@ -80,6 +77,18 @@ for message in st.session_state.messages:
 
 
 if prompt := st.chat_input("Chat with me!"):
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    if not open_ai_base_url:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    # Initialize OpenAI
+    client = OpenAI(api_key=openai_api_key,
+                    base_url=open_ai_base_url)
+
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
@@ -90,7 +99,7 @@ if prompt := st.chat_input("Chat with me!"):
         message_placeholder = st.empty()
         full_response = ""
         # Simulate stream of response with milliseconds delay
-        for response in openai.chat.completions.create(
+        for response in client.chat.completions.create(
             model="-",
             messages=[
                 {"role": m["role"], "content": m["content"]}
