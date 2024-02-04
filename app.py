@@ -1,3 +1,4 @@
+from io import StringIO
 from openai import OpenAI
 
 import os
@@ -6,6 +7,14 @@ import time
 import uuid
 import webbrowser
 import yaml
+
+
+extensions = [
+    "css",
+    "html",
+    "php",
+    "py"
+]
 
 
 def config():
@@ -76,6 +85,11 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
+# File uploader
+uploaded_file = st.file_uploader(
+    "Upload your file", accept_multiple_files=False)
+
+
 if prompt := st.chat_input("Chat with me!"):
     if not openai_api_key:
         st.info("Please add your OpenAI API key to continue.")
@@ -88,6 +102,21 @@ if prompt := st.chat_input("Chat with me!"):
     # Initialize OpenAI
     client = OpenAI(api_key=openai_api_key,
                     base_url=open_ai_base_url)
+
+    file_content = None
+
+    if uploaded_file is not None:
+        file_name = uploaded_file.name
+        extension = uploaded_file.name.split('.')
+
+        if extension[1] in extensions:
+            with st.expander("Content of the uploaded file"):
+                string_io = StringIO(
+                    uploaded_file.getvalue().decode("utf-8"))
+
+                string_data = string_io.read()
+                st.write(string_data)
+                prompt = "{} {}".format(prompt, string_data)
 
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
